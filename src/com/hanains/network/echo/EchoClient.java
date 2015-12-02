@@ -44,7 +44,8 @@ public class EchoClient {
 					break;
 				}
 				
-				outputStream.write(data.getBytes("UTF-8")); // 서버에 문자열 전달하기
+				// server에서 readline으로 읽을 때 \r\n을 기준으로 끊어 읽기 때문에, println이라면 \r\n 할 필요 없음.
+				outputStream.write((data+"\r\n").getBytes("UTF-8")); // 서버에 문자열 전달하기
 				
 				byte[] buffer = new byte[256];
 				int readByteCount = inputStream.read(buffer); // 서버로부터 문자열 전달받기
