@@ -7,7 +7,9 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ChatServer {
 
@@ -23,14 +25,14 @@ public class ChatServer {
 
 			// 데이터 통신 스레드들이 공유하는 List
 			List<Writer> listWriters = new ArrayList<Writer>();
-			List<String> listNickNames = new ArrayList<>(); // 닉네임 중복 확인용
+			//닉네임
+			Map<String,Writer> listNickNames=new HashMap<String,Writer>();
 
 			// 바인딩
 			String hostAddress = InetAddress.getLocalHost().getHostAddress();
 			serverSocket.bind(new InetSocketAddress(hostAddress,PORT));
 
 			log("연결 기다림 " + hostAddress + ":" + PORT);
-			//log("연결 기다림 " + "localhost" + ":" + PORT);
 
 			while (true) {
 				Socket socket = serverSocket.accept();

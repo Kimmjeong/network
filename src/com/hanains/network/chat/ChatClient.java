@@ -52,8 +52,8 @@ public class ChatClient {
 				if (response.equals("ok")) {
 					System.out.println("닉네임 [ " + nickName + " ]이 등록되었습니다.");
 					break;
-				} else if (response.equals("error")) {
-					System.out.println("이미 등록된 닉네임입니다.");
+				} else if (response.equals("fail")) {
+					System.out.println("* 이미 등록된 닉네임입니다 *");
 				}
 			}
 

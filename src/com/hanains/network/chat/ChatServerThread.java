@@ -9,22 +9,22 @@ import java.io.Writer;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ChatServerThread extends Thread {
 
 	private String nickName; // 닉네임
 	private Socket socket;
 	private List<Writer> listWriters;
-	private List<String> listNickNames;
+	private Map<String, Writer> listNickNames;
 
-	public ChatServerThread(Socket socket, List<Writer> listWriters, List<String> listNickNames) {
+	public ChatServerThread(Socket socket, List<Writer> listWriters, Map<String, Writer> listNickNames) {
 		this.socket = socket;
 		this.listWriters = listWriters;
 		this.listNickNames = listNickNames;
 	}
-
+	
 	@Override
 	public void run() {
 
@@ -56,8 +56,12 @@ public class ChatServerThread extends Thread {
 					if ("join".equals(tokens[0])) { // 닉네임 등록
 						doJoin(tokens[1], printWriter);
 					} else if ("message".equals(tokens[0])) { // 메세지
-
-						doMessage(tokens[1]);
+						if(tokens.length<3){
+							doMessage(tokens[1]);
+						}else{
+							doSecretMessage(tokens[1], tokens[2]);
+						}
+							
 
 					} else if ("quit".equals(tokens[0])) { // 종료
 						doQuit(printWriter);
@@ -113,7 +117,9 @@ public class ChatServerThread extends Thread {
 		if (!isNickName(nickName)) { // 입력된 닉네임이 중복되는지 확인
 
 			String data = nickName + "님이 참여하였습니다.";
-			System.out.println(data);
+
+			listNickNames.put(nickName, writer); // 닉네임 리스트에 추가
+			
 			// listWriters를 공유하고 있는 다른 모든 클라이언트에 data를 보냄
 			broadcast(data);
 			// 자신의 클라이언트는 listWriters에 추가하지 않았기 때문에 자신한테는 이 메세지가 보여지지 않음.
@@ -126,9 +132,9 @@ public class ChatServerThread extends Thread {
 			printWriter.println("ok"); // 해당 writer를 가진 클라이언트에 메세지 보냄
 			printWriter.flush();
 
-		} else {
+		} else { // 이미 있는 닉네임일 경우
 			// ack
-			printWriter.println("error");
+			printWriter.println("fail");
 			printWriter.flush();
 		}
 
@@ -138,6 +144,25 @@ public class ChatServerThread extends Thread {
 	private void doMessage(String message) {
 		String data = nickName + " >> " + message;
 		broadcast(data);
+	}
+	
+	// 귓속말 보내기
+	private void doSecretMessage(String partner, String message){
+		String data=null;
+		
+		if(isNickName(partner)){
+			data="["+nickName + "->"+partner+"] >> "+message;
+			PrintWriter printWriter = (PrintWriter) listNickNames.get(partner);
+			printWriter.println(data);
+			printWriter.flush();
+		}
+		else{
+			data="* "+partner+"님은 접속중이 아닙니다 *";
+			PrintWriter printWriter = (PrintWriter) listNickNames.get(nickName);
+			printWriter.println(data);
+			printWriter.flush();
+		}
+
 	}
 
 	// 나가기
@@ -164,16 +189,13 @@ public class ChatServerThread extends Thread {
 	}
 
 	// 닉네임 중복 확인
-	private boolean isNickName(String nname) {
-
-		for (String listnickname : listNickNames) {
-			if (listnickname.equals(nname)) {
-				return true;
-			}
-		}
-
-		listNickNames.add(nname);
-		return false;
+	private boolean isNickName(String nickName) {
+		
+		if(listNickNames.containsKey(nickName))
+			return true;
+		else
+			return false;
+		
 	}
 
 }

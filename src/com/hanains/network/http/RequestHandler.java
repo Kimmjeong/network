@@ -115,7 +115,7 @@ public class RequestHandler extends Thread {
 		
 		
 		// 해당 path의 MIME타입을 구한다
-		String mimeType=Files.probeContentType(path); 
+		String mimeType=Files.probeContentType(path);
 		
 		
 		/* 
@@ -130,7 +130,7 @@ public class RequestHandler extends Thread {
 		
 		// 브라우저에 보냄
 		outputStream.write((protocol+"200 ok\r\n").getBytes("UTF-8"));
-		outputStream.write(("Content-Type:"+mimeType+"\r\n").getBytes("UTF-8"));
+		outputStream.write(("Content-Type:"+mimeType+"; charset=UTF-8\r\n").getBytes("UTF-8"));
 		outputStream.write("\r\n".getBytes("UTF-8"));
 		outputStream.write(body);
 		
@@ -143,11 +143,11 @@ public class RequestHandler extends Thread {
 		File file = new File("./webapp/error/404.html"); // 404 파일
 		
 		Path path = file.toPath();
-		byte[] body = Files.readAllBytes(path); 
+		byte[] body = Files.readAllBytes(path);
 
 		// 브라우저에 응답
 		outputStream.write((protocol + " 404 File Not Found\r\n").getBytes());
-		outputStream.write("Content-Type:text/html\r\n".getBytes());
+		outputStream.write("Content-Type:text/html; charset=UTF-8\r\n".getBytes());
 		outputStream.write("\r\n".getBytes("UTF-8"));
 		outputStream.write(body);
 		
@@ -164,7 +164,7 @@ public class RequestHandler extends Thread {
 
 		// 브라우저에 응답
 		outputStream.write((protocol + " 400 Bad Request\r\n").getBytes());
-		outputStream.write("Content-Type:text/html\r\n".getBytes());
+		outputStream.write("Content-Type:text/html; charset=UTF-8\r\n".getBytes());
 		outputStream.write("\r\n".getBytes("UTF-8"));
 		outputStream.write(body);
 		
